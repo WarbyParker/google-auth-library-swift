@@ -36,9 +36,11 @@ struct Credentials: Codable {
 }
 
 public class BrowserTokenProvider: TokenProvider {
-  private var credentials: Credentials
-  private var code: Code?
-  public var token: Token?
+    private var credentials: Credentials
+    private var code: Code?
+    public var token: Token?
+    public var serverURI: String = "http://localhost:8080"
+    
 
   private var sem: DispatchSemaphore?
 
@@ -111,7 +113,7 @@ public class BrowserTokenProvider: TokenProvider {
       "client_secret": credentials.clientSecret,
       "grant_type": "authorization_code",
       "code": code!.code!,
-      "redirect_uri": "http://localhost:8080" + credentials.callback,
+      "redirect_uri": serverURI + credentials.callback,
     ]
     let token = credentials.clientID + ":" + credentials.clientSecret
     // some providers require the client id and secret in the authorization header
@@ -149,7 +151,7 @@ public class BrowserTokenProvider: TokenProvider {
       guard let queryParameters = String(data: responseData, encoding: .utf8) else {
         throw AuthError.unknownError
       }
-      guard let urlComponents = URLComponents(string: "http://example.com?" + queryParameters) else {
+      guard let urlComponents = URLComponents(string: "\(serverURI)?" + queryParameters) else {
         throw AuthError.unknownError
       }
       return Token(urlComponents: urlComponents)
@@ -170,7 +172,7 @@ public class BrowserTokenProvider: TokenProvider {
         var queryItems = [
       URLQueryItem(name: "client_id", value: credentials.clientID),
       URLQueryItem(name: "response_type", value: "code"),
-      URLQueryItem(name: "redirect_uri", value: "http://localhost:8080" + credentials.callback),
+      URLQueryItem(name: "redirect_uri", value: serverURI + credentials.callback),
       URLQueryItem(name: "state", value: state),
       URLQueryItem(name: "scope", value: scope),
       URLQueryItem(name: "show_dialog", value: "false"),
