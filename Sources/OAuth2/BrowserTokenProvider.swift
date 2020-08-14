@@ -157,7 +157,7 @@ public class BrowserTokenProvider: TokenProvider {
   }
 
   @available(iOS 10.0, tvOS 10.0, *)
-  public func signIn(scopes: [String]) throws {
+    public func signIn(scopes: [String], additionalParameters: [String: String] = [:]) throws {
     let sem = DispatchSemaphore(value: 0)
     try startServer(sem: sem)
 
@@ -165,7 +165,9 @@ public class BrowserTokenProvider: TokenProvider {
     let scope = scopes.joined(separator: " ")
 
     var urlComponents = URLComponents(string: credentials.authorizeURL)!
-    urlComponents.queryItems = [
+    
+    
+        var queryItems = [
       URLQueryItem(name: "client_id", value: credentials.clientID),
       URLQueryItem(name: "response_type", value: "code"),
       URLQueryItem(name: "redirect_uri", value: "http://localhost:8080" + credentials.callback),
@@ -173,6 +175,14 @@ public class BrowserTokenProvider: TokenProvider {
       URLQueryItem(name: "scope", value: scope),
       URLQueryItem(name: "show_dialog", value: "false"),
     ]
+    
+    //Add the additional params
+    additionalParameters.forEach {
+        queryItems.append(URLQueryItem(name: $0, value: $1))
+    }
+    
+    urlComponents.queryItems = queryItems
+    
     openURL(urlComponents.url!)
     _ = sem.wait(timeout: DispatchTime.distantFuture)
     token = try exchange()

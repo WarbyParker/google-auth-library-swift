@@ -40,7 +40,9 @@ func main() throws {
                                      "user-library-read",
                                      "user-library-modify",
                                      "user-read-private",
-                                     "user-read-email"])
+                                     "user-read-email"]
+                             )
+    
     try tokenProvider.saveToken(TOKEN)
   }
   
