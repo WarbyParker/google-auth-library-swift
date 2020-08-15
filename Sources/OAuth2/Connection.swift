@@ -32,6 +32,7 @@ public class Connection {
     parameters: [String: String],
     body: Data!,
     authorization: String,
+    customHeaders: [String : String] = [:],
     callback: @escaping (Data?, URLResponse?, Error?) -> Void) {
     
     var urlComponents = URLComponents(string: urlString)!
@@ -59,6 +60,11 @@ public class Connection {
       }
     }
     
+    //Add any additional custom headers
+    customHeaders.forEach {
+        request.setValue($1, forHTTPHeaderField: $0)
+    }
+    
     let session = URLSession(configuration: URLSessionConfiguration.default)
     let task: URLSessionDataTask = session.dataTask(with: request) { (data, response, error) -> Void in
       callback(data, response, error)
@@ -71,6 +77,7 @@ public class Connection {
     urlString: String,
     parameters: [String: String],
     body: Data!,
+    customHeaders: [String : String] = [:],
     callback: @escaping (Data?, URLResponse?, Error?) -> Void) throws {
     
     try provider.withToken {token, err in
@@ -86,6 +93,7 @@ public class Connection {
         parameters: parameters,
         body: body,
         authorization: "Bearer " + accessToken,
+        customHeaders: customHeaders,
         callback: callback)
     }
   }
@@ -93,6 +101,7 @@ public class Connection {
   public func performRequest(
     method: String,
     urlString: String,
+    customHeaders: [String : String] = [:],
     callback: @escaping (Data?, URLResponse?, Error?) -> Void) throws {
     
     let parameters: [String: String] = [:]
@@ -101,6 +110,7 @@ public class Connection {
       urlString: urlString,
       parameters: parameters,
       body: nil,
+      customHeaders: customHeaders,
       callback: callback)
   }
 }
