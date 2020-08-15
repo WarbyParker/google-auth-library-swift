@@ -106,7 +106,7 @@ public class BrowserTokenProvider: TokenProvider {
     }
   }
 
-  private func exchange() throws -> Token {
+    private func exchange(customHeaders: [String : String] = [:]) throws -> Token {
     let sem = DispatchSemaphore(value: 0)
     let parameters = [
       "client_id": credentials.clientID, // some providers require the client id and secret in the method call
@@ -159,7 +159,7 @@ public class BrowserTokenProvider: TokenProvider {
   }
 
   @available(iOS 10.0, tvOS 10.0, *)
-    public func signIn(scopes: [String], additionalParameters: [String: String] = [:]) throws {
+    public func signIn(scopes: [String], additionalParameters: [String: String] = [:], customHeaders: [String: String] = [:]) throws {
     let sem = DispatchSemaphore(value: 0)
     try startServer(sem: sem)
 
@@ -187,7 +187,7 @@ public class BrowserTokenProvider: TokenProvider {
     
     openURL(urlComponents.url!)
     _ = sem.wait(timeout: DispatchTime.distantFuture)
-    token = try exchange()
+    token = try exchange(customHeaders: customHeaders)
   }
 
   public func withToken(_ callback: @escaping (Token?, Error?) -> Void) throws {
